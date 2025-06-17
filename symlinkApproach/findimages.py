@@ -30,7 +30,7 @@ def create_image_symlinks():
     image_extensions = ('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.webp')
     
     symlink_count = 0
-    max_symlinks = 2000
+    max_symlinks = 20
     total_images_found = 0 # New counter for total images found
 
     print(f"Starting image symlink creation process...")

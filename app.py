@@ -13,7 +13,8 @@ INDEX_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'imag
 # IMPORTANT: Set this to the EXACT root directory you passed to generate_index.py
 # This is crucial for security to ensure only files within this directory are served.
 # Example: ROOT_SEARCH_DIR = '/Volumes/Backup/misc/20250617_iMessage'
-ROOT_SEARCH_DIR = '/Users/eldewen/Desktop' # <--- YOU MUST CHANGE THIS!
+# <--- YOU MUST CHANGE THIS!
+ROOT_SEARCH_DIR = '/home/daniel/backup/20250617_iMessage/'
 # Ensure ROOT_SEARCH_DIR is an absolute path and normalized for consistent checks
 ROOT_SEARCH_DIR = os.path.abspath(ROOT_SEARCH_DIR) + os.sep # Add separator for proper startswith check
 

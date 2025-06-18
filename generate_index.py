@@ -21,7 +21,8 @@ def generate_image_index():
         sys.exit(1)
 
     # Define common image file extensions
-    image_extensions = ('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.webp')
+    image_extensions = ('.png', '.jpg', '.jpeg', '.heif', '.gif', '.bmp', 
+                        '.tiff', '.webp')
     
     image_index_data = []
     processed_count = 0

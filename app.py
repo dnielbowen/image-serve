@@ -1,4 +1,5 @@
 import os
+import argparse
 from flask import Flask, send_file, abort, request
 import json  # Import json for reading the index file
 from gallery_renderer import (
@@ -117,4 +118,7 @@ def serve_indexed_image(image_index):
         abort(500, description="Internal server error when serving image.")
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    parser = argparse.ArgumentParser(description='Run the image gallery server.')
+    parser.add_argument('--port', type=int, default=6060, help='Port to run the server on (default: 6060)')
+    args = parser.parse_args()
+    app.run(debug=True, port=args.port)

@@ -1,4 +1,5 @@
 import os
+import argparse
 from flask import Flask, send_from_directory, abort, request
 from gallery_renderer import (
     render_gallery,
@@ -86,4 +87,7 @@ def serve_image(filename: str):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    parser = argparse.ArgumentParser(description='Run the CWD image gallery server.')
+    parser.add_argument('--port', type=int, default=6060, help='Port to run the server on (default: 6060)')
+    args = parser.parse_args()
+    app.run(debug=True, port=args.port)

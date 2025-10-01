@@ -232,3 +232,209 @@ def render_gallery(title: str,
     """
 
     return render_template_string(html_content)
+
+
+def render_gallery_with_dirs(title: str,
+                             page: int,
+                             total_pages: int,
+                             start_page_num: int,
+                             end_page_num: int,
+                             tiles: list[dict],
+                             empty_message: str = "No image files found.",
+                             subdirs: list[tuple[str, str]] = None,
+                             current_dir_rel: str = ""):
+    """
+    Render a tiled gallery with subdirectory navigation at the bottom.
+
+    subdirs: list of (display_name, relative_path) for subdirectories
+    current_dir_rel: the current directory relative to root, for pagination links
+    """
+    if subdirs is None:
+        subdirs = []
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang=\"en\">
+    <head>
+        <meta charset=\"UTF-8\">
+        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+        <title>{title} (Page {page} of {total_pages})</title>
+        <style>
+            body {{
+                font-family: sans-serif;
+                margin: 5px;
+                background-color: #f0f0f0;
+            }}
+            h1 {{
+                text-align: center;
+                color: #333;
+            }}
+            .gallery-container {{
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+                justify-content: center;
+                padding: 5px;
+            }}
+            .image-tile {{
+                border: 1px solid #ddd;
+                padding: 5px;
+                background-color: white;
+                box-shadow: 3px 3px 8px rgba(0,0,0,0.15);
+                text-align: center;
+                border-radius: 8px;
+                transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            }}
+            .image-tile:hover {{
+                transform: translateY(-5px);
+                box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
+            }}
+            .image-tile img {{
+                width: 150px;
+                height: 150px;
+                object-fit: cover;
+                display: block;
+                margin: 0 auto;
+                border-radius: 4px;
+            }}
+            .image-tile a {{
+                text-decoration: none;
+                color: #333;
+                font-size: 0.9em;
+                display: block;
+                font-weight: bold;
+            }}
+            .image-tile a:hover {{
+                color: #007bff;
+            }}
+            .image-date {{
+                font-size: 0.75em;
+                color: #888;
+                margin-top: 5px;
+                display: block;
+                font-weight: normal;
+            }}
+            .no-images {{
+                text-align: center;
+                color: #666;
+                font-style: italic;
+                margin-top: 50px;
+            }}
+            .pagination {{
+                text-align: center;
+                margin-top: 30px;
+                margin-bottom: 30px;
+            }}
+            .pagination a, .pagination span {{
+                display: inline-block;
+                padding: 10px 15px;
+                margin: 0 3px;
+                border: 1px solid #007bff;
+                border-radius: 5px;
+                text-decoration: none;
+                color: #007bff;
+                background-color: #fff;
+                transition: background-color 0.3s, color 0.3s;
+            }}
+            .pagination a:hover {{
+                background-color: #007bff;
+                color: #fff;
+            }}
+            .pagination span.current-page {{
+                background-color: #007bff;
+                color: #fff;
+                font-weight: bold;
+                border-color: #007bff;
+            }}
+            .pagination span.disabled {{
+                border: 1px solid #ccc;
+                color: #ccc;
+                background-color: #f9f9f9;
+                cursor: not-allowed;
+            }}
+            .subdirs {{
+                text-align: center;
+                margin-top: 30px;
+                margin-bottom: 30px;
+            }}
+            .subdirs a {{
+                display: inline-block;
+                padding: 10px 15px;
+                margin: 5px;
+                border: 1px solid #28a745;
+                border-radius: 5px;
+                text-decoration: none;
+                color: #28a745;
+                background-color: #fff;
+                transition: background-color 0.3s, color 0.3s;
+            }}
+            .subdirs a:hover {{
+                background-color: #28a745;
+                color: #fff;
+            }}
+        </style>
+    </head>
+    <body>
+        <h1>{title}</h1>
+        <div class="gallery-container">
+    """
+
+    if not tiles:
+        html_content += f"<p class='no-images'>{empty_message}</p>"
+    else:
+        for tile in tiles:
+            href = tile.get("href", "#")
+            img_src = tile.get("img_src", "")
+            caption = tile.get("caption", "")
+            html_content += f"""
+            <div class="image-tile">
+                <a href="{href}" target="_blank">
+                    <img src="{img_src}" alt="image">
+                    <p class="image-date">{caption}</p>
+                </a>
+            </div>
+            """
+
+    html_content += """
+        </div>
+        <div class="pagination">
+    """
+
+    # Previous
+    dir_param = f"&dir={current_dir_rel}" if current_dir_rel else ""
+    if page > 1:
+        html_content += f"<a href='/?page={page - 1}{dir_param}'>&laquo; Previous</a>"
+    else:
+        html_content += "<span class='disabled'>&laquo; Previous</span>"
+
+    # Numbered links
+    if total_pages > 0:
+        for p_num in range(start_page_num, end_page_num + 1):
+            if p_num == page:
+                html_content += f"<span class='current-page'>{p_num}</span>"
+            else:
+                html_content += f"<a href='/?page={p_num}{dir_param}'>{p_num}</a>"
+
+    # Next
+    if page < total_pages:
+        html_content += f"<a href='/?page={page + 1}{dir_param}'>Next &raquo;</a>"
+    else:
+        html_content += "<span class='disabled'>Next &raquo;</span>"
+
+    html_content += """
+        </div>
+    """
+
+    # Subdirectories
+    if subdirs:
+        html_content += '<div class="subdirs"><h3>Subdirectories:</h3>'
+        for display_name, rel_path in subdirs:
+            html_content += f'<a href="/?dir={rel_path}">{display_name}</a>'
+        html_content += '</div>'
+
+    html_content += """
+    </body>
+    </html>
+    """
+
+    return render_template_string(html_content)

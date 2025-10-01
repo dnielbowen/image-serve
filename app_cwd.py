@@ -89,5 +89,6 @@ def serve_image(filename: str):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run the CWD image gallery server.')
     parser.add_argument('--port', type=int, default=6060, help='Port to run the server on (default: 6060)')
+    parser.add_argument('--host', default='0.0.0.0', help='Host to bind to (default: 0.0.0.0)')
     args = parser.parse_args()
-    app.run(debug=True, port=args.port)
+    app.run(debug=True, host=args.host, port=args.port)

@@ -16,7 +16,7 @@ INDEX_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'imag
 # <--- YOU MUST CHANGE THIS!
 ROOT_SEARCH_DIR = '/home/daniel/backup/20250617_iMessage/'
 # Ensure ROOT_SEARCH_DIR is an absolute path and normalized for consistent checks
-ROOT_SEARCH_DIR = os.path.abspath(ROOT_SEARCH_DIR) + os.sep # Add separator for proper startswith check
+ROOT_SEARCH_DIR = os.path.abspath(ROOT_SEARCH_DIR) + os.sep
 
 # Global variable to store loaded and sorted image data
 # This will be populated once when the app starts
@@ -113,7 +113,7 @@ def index():
         <style>
             body {{
                 font-family: sans-serif;
-                margin: 20px;
+                margin: 5px;
                 background-color: #f0f0f0;
             }}
             h1 {{
@@ -125,7 +125,7 @@ def index():
                 flex-wrap: wrap;
                 gap: 4px; /* Reduced space between images */
                 justify-content: center; /* Center the tiles */
-                padding: 20px;
+                padding: 5px;
             }}
             .image-tile {{
                 border: 1px solid #ddd;
@@ -141,8 +141,8 @@ def index():
                 box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
             }}
             .image-tile img {{
-                width: 120px; /* Fixed width */
-                height: 120px; /* Fixed height to ensure consistent tile size */
+                width: 150px; /* Fixed width */
+                height: 150px; /* Fixed height to ensure consistent tile size */
                 object-fit: cover; /* Crop image to fit without distortion */
                 display: block; /* Remove extra space below image */
                 margin: 0 auto; /* Center image within its tile */

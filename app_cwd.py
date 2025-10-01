@@ -77,6 +77,7 @@ def index():
         tiles.append({
             'href': f"/images/{img_path}",
             'img_src': f"/images/{img_path}",
+            'filename': filename,
             'caption': caption,
         })
 
@@ -132,7 +133,7 @@ def serve_image(img_path: str):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run the CWD image gallery server.')
-    parser.add_argument('--port', type=int, default=6060, help='Port to run the server on (default: 6060)')
+    parser.add_argument('--port', type=int, default=8000, help='Port to run the server on (default: 8000)')
     parser.add_argument('--host', default='0.0.0.0', help='Host to bind to (default: 0.0.0.0)')
     args = parser.parse_args()
     app.run(debug=True, host=args.host, port=args.port)

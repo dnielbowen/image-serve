@@ -66,10 +66,12 @@ def index():
     tiles = []
     for i in range(pagination['start_index'], min(pagination['end_index'], total_images)):
         image_data = all_indexed_images[i]
+        filename = os.path.basename(image_data['path'])
         caption = format_date_from_timestamp(image_data.get('mtime', 0))
         tiles.append({
             'href': f"/serve_indexed_image/{i}",
             'img_src': f"/serve_indexed_image/{i}",
+            'filename': filename,
             'caption': caption,
         })
 
@@ -119,7 +121,7 @@ def serve_indexed_image(image_index):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run the image gallery server.')
-    parser.add_argument('--port', type=int, default=6060, help='Port to run the server on (default: 6060)')
+    parser.add_argument('--port', type=int, default=8000, help='Port to run the server on (default: 8000)')
     parser.add_argument('--host', default='0.0.0.0', help='Host to bind to (default: 0.0.0.0)')
     args = parser.parse_args()
     app.run(debug=True, host=args.host, port=args.port)

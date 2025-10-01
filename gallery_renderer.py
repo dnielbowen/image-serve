@@ -132,10 +132,17 @@ def render_gallery(title: str,
             .image-tile a:hover {{
                 color: #007bff;
             }}
+            .image-filename {{
+                font-size: 0.8em;
+                color: #555;
+                margin-top: 2px;
+                display: block;
+                font-weight: normal;
+            }}
             .image-date {{
                 font-size: 0.75em;
                 color: #888;
-                margin-top: 5px;
+                margin-top: 2px;
                 display: block;
                 font-weight: normal;
             }}
@@ -190,11 +197,13 @@ def render_gallery(title: str,
         for tile in tiles:
             href = tile.get("href", "#")
             img_src = tile.get("img_src", "")
+            filename = tile.get("filename", "")
             caption = tile.get("caption", "")
             html_content += f"""
             <div class="image-tile">
                 <a href="{href}" target="_blank">
                     <img src="{img_src}" alt="image">
+                    <p class="image-filename">{filename}</p>
                     <p class="image-date">{caption}</p>
                 </a>
             </div>
@@ -307,10 +316,17 @@ def render_gallery_with_dirs(title: str,
             .image-tile a:hover {{
                 color: #007bff;
             }}
+            .image-filename {{
+                font-size: 0.8em;
+                color: #555;
+                margin-top: 2px;
+                display: block;
+                font-weight: normal;
+            }}
             .image-date {{
                 font-size: 0.75em;
                 color: #888;
-                margin-top: 5px;
+                margin-top: 2px;
                 display: block;
                 font-weight: normal;
             }}
@@ -385,11 +401,13 @@ def render_gallery_with_dirs(title: str,
         for tile in tiles:
             href = tile.get("href", "#")
             img_src = tile.get("img_src", "")
+            filename = tile.get("filename", "")
             caption = tile.get("caption", "")
             html_content += f"""
             <div class="image-tile">
                 <a href="{href}" target="_blank">
                     <img src="{img_src}" alt="image">
+                    <p class="image-filename">{filename}</p>
                     <p class="image-date">{caption}</p>
                 </a>
             </div>

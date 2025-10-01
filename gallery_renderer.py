@@ -135,14 +135,14 @@ def render_gallery(title: str,
             .image-filename {{
                 font-size: 0.8em;
                 color: #555;
-                margin-top: 5px;
+                margin: 4px;
                 display: block;
                 font-weight: normal;
             }}
             .image-date {{
                 font-size: 0.75em;
                 color: #888;
-                margin-top: 1px;
+                margin: 2px;
                 display: block;
                 font-weight: normal;
             }}
@@ -317,16 +317,16 @@ def render_gallery_with_dirs(title: str,
                 color: #007bff;
             }}
             .image-filename {{
-                font-size: 0.8em;
+                font-size: 0.6em;
                 color: #555;
-                margin-top: 5px;
+                margin: 2px 8px;
                 display: block;
                 font-weight: normal;
             }}
             .image-date {{
                 font-size: 0.75em;
                 color: #888;
-                margin-top: 1px;
+                margin: 2px;
                 display: block;
                 font-weight: normal;
             }}

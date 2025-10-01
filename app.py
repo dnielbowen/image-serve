@@ -1,7 +1,11 @@
 import os
-from flask import Flask, render_template_string, send_file, abort, request
-from datetime import datetime
-import json # Import json for reading the index file
+from flask import Flask, send_file, abort, request
+import json  # Import json for reading the index file
+from gallery_renderer import (
+    render_gallery,
+    compute_pagination_window,
+    format_date_from_timestamp,
+)
 
 app = Flask(__name__)
 
@@ -22,9 +26,7 @@ ROOT_SEARCH_DIR = os.path.abspath(ROOT_SEARCH_DIR) + os.sep
 # This will be populated once when the app starts
 all_indexed_images = []
 
-# Pagination setting
-IMAGES_PER_PAGE = 300
-PAGINATION_LINKS_TO_SHOW = 10 # Number of numbered page links to display
+# Pagination settings are centralized in gallery_renderer
 
 def load_image_index():
     """Loads and sorts the image index from the JSON file."""
@@ -55,207 +57,30 @@ with app.app_context():
 def index():
     # Use the globally loaded and sorted image data
     total_images = len(all_indexed_images)
-    total_pages = (total_images + IMAGES_PER_PAGE - 1) // IMAGES_PER_PAGE
-    
     page = request.args.get('page', 1, type=int)
-    
-    # Ensure page is within valid range
-    if page < 1:
-        page = 1
-    elif page > total_pages and total_pages > 0:
-        page = total_pages
-    elif total_pages == 0: # Handle case with no images
-        page = 1
 
-    start_index = (page - 1) * IMAGES_PER_PAGE
-    end_index = start_index + IMAGES_PER_PAGE
-    
-    # Get images for the current page, including their original index for serving
-    current_page_images_for_display = []
-    for i in range(start_index, min(end_index, total_images)):
+    pagination = compute_pagination_window(page=page, total_items=total_images)
+
+    # Build tiles for current page, using the image index for href/src
+    tiles = []
+    for i in range(pagination['start_index'], min(pagination['end_index'], total_images)):
         image_data = all_indexed_images[i]
-        # Format the modification time for display
-        dt_object = datetime.fromtimestamp(image_data['mtime'])
-        formatted_date = dt_object.strftime("%b %d, %Y")
-        current_page_images_for_display.append({
-            'index': i, # Store the original index for serving
-            'filename': os.path.basename(image_data['path']), # Just for display
-            'formatted_date': formatted_date
+        caption = format_date_from_timestamp(image_data.get('mtime', 0))
+        tiles.append({
+            'href': f"/serve_indexed_image/{i}",
+            'img_src': f"/serve_indexed_image/{i}",
+            'caption': caption,
         })
 
-    # Calculate range for numbered pagination links
-    half_links = PAGINATION_LINKS_TO_SHOW // 2
-    
-    start_page_num = max(1, page - half_links)
-    end_page_num = min(total_pages, page + (PAGINATION_LINKS_TO_SHOW - 1 - half_links))
-
-    if end_page_num == total_pages:
-        start_page_num = max(1, total_pages - PAGINATION_LINKS_TO_SHOW + 1)
-    
-    if start_page_num == 1:
-        end_page_num = min(total_pages, PAGINATION_LINKS_TO_SHOW)
-
-    if total_pages == 0:
-        start_page_num = 0
-        end_page_num = 0
-    elif start_page_num > end_page_num:
-        start_page_num = 1
-        end_page_num = total_pages
-
-    # Generate HTML for the tiled view
-    html_content = f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Image Gallery (Page {page} of {total_pages})</title>
-        <style>
-            body {{
-                font-family: sans-serif;
-                margin: 5px;
-                background-color: #f0f0f0;
-            }}
-            h1 {{
-                text-align: center;
-                color: #333;
-            }}
-            .gallery-container {{
-                display: flex;
-                flex-wrap: wrap;
-                gap: 4px; /* Reduced space between images */
-                justify-content: center; /* Center the tiles */
-                padding: 5px;
-            }}
-            .image-tile {{
-                border: 1px solid #ddd;
-                padding: 5px; /* Slightly reduced padding */
-                background-color: white;
-                box-shadow: 3px 3px 8px rgba(0,0,0,0.15);
-                text-align: center;
-                border-radius: 8px;
-                transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            }}
-            .image-tile:hover {{
-                transform: translateY(-5px);
-                box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
-            }}
-            .image-tile img {{
-                width: 150px; /* Fixed width */
-                height: 150px; /* Fixed height to ensure consistent tile size */
-                object-fit: cover; /* Crop image to fit without distortion */
-                display: block; /* Remove extra space below image */
-                margin: 0 auto; /* Center image within its tile */
-                border-radius: 4px;
-            }}
-            .image-tile a {{
-                text-decoration: none;
-                color: #333;
-                font-size: 0.9em;
-                display: block; /* Make the whole tile clickable */
-                font-weight: bold;
-            }}
-            .image-tile a:hover {{
-                color: #007bff;
-            }}
-            .image-date {{ /* New style for the date */
-                font-size: 0.75em; /* Smaller font size */
-                color: #888; /* Faint color */
-                margin-top: 5px; /* Small margin above the date */
-                display: block; /* Ensure it takes its own line */
-                font-weight: normal; /* Override bold from parent 'a' tag */
-            }}
-            .no-images {{
-                text-align: center;
-                color: #666;
-                font-style: italic;
-                margin-top: 50px;
-            }}
-            .pagination {{
-                text-align: center;
-                margin-top: 30px;
-                margin-bottom: 30px;
-            }}
-            .pagination a, .pagination span {{
-                display: inline-block;
-                padding: 10px 15px; /* Slightly reduced padding for numbered links */
-                margin: 0 3px; /* Reduced margin for numbered links */
-                border: 1px solid #007bff;
-                border-radius: 5px;
-                text-decoration: none;
-                color: #007bff;
-                background-color: #fff;
-                transition: background-color 0.3s, color 0.3s;
-            }}
-            .pagination a:hover {{
-                background-color: #007bff;
-                color: #fff;
-            }}
-            .pagination span.current-page {{
-                background-color: #007bff;
-                color: #fff;
-                font-weight: bold;
-                border-color: #007bff;
-            }}
-            .pagination span.disabled {{
-                border: 1px solid #ccc;
-                color: #ccc;
-                background-color: #f9f9f9;
-                cursor: not-allowed;
-            }}
-        </style>
-    </head>
-    <body>
-        <h1>Local Image Gallery</h1>
-        <div class="gallery-container">
-    """
-
-    if not current_page_images_for_display:
-        html_content += "<p class='no-images'>No image files found in the index or on this page.</p>"
-    else:
-        for img_data in current_page_images_for_display:
-            # Link to the raw image using its index, open in new tab
-            # Image source points to the /serve_indexed_image/ route with its index
-            html_content += f"""
-            <div class="image-tile">
-                <a href="/serve_indexed_image/{img_data['index']}" target="_blank">
-                    <img src="/serve_indexed_image/{img_data['index']}" alt="{img_data['filename']}">
-                    <p class="image-date">{img_data['formatted_date']}</p>
-                </a>
-            </div>
-            """
-
-    html_content += """
-        </div>
-        <div class="pagination">
-    """
-    
-    # Previous page link
-    if page > 1:
-        html_content += f"<a href='/?page={page - 1}'>&laquo; Previous</a>"
-    else:
-        html_content += "<span class='disabled'>&laquo; Previous</span>"
-
-    # Numbered page links
-    if total_pages > 0:
-        for p_num in range(start_page_num, end_page_num + 1):
-            if p_num == page:
-                html_content += f"<span class='current-page'>{p_num}</span>"
-            else:
-                html_content += f"<a href='/?page={p_num}'>{p_num}</a>"
-
-    # Next page link
-    if page < total_pages:
-        html_content += f"<a href='/?page={page + 1}'>Next &raquo;</a>"
-    else:
-        html_content += "<span class='disabled'>Next &raquo;</span>"
-
-    html_content += """
-        </div>
-    </body>
-    </html>
-    """
-    return render_template_string(html_content)
+    return render_gallery(
+        title="Local Image Gallery",
+        page=pagination['page'],
+        total_pages=pagination['total_pages'],
+        start_page_num=pagination['start_page_num'],
+        end_page_num=pagination['end_page_num'],
+        tiles=tiles,
+        empty_message="No image files found in the index or on this page.",
+    )
 
 @app.route('/serve_indexed_image/<int:image_index>')
 def serve_indexed_image(image_index):

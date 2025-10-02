@@ -2,6 +2,8 @@ images
 __pycache__
 .DS_Store
 
+src/image_serve.egg-info/
+
 image_index.json
 dist
 .venv

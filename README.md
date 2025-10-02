@@ -1,4 +1,4 @@
-# imgserve
+# image-serve
 
 Serve images from your current working directory as a simple web gallery.
 
@@ -9,19 +9,19 @@ for example).
 ## Installation
 
 ```bash
-pip install imgserve
+pip install image-serve
 ```
 
 ## Usage
 
 ### Serve Current Directory
 
-Simply run `imgserve` to serve the current directory.
+Simply run `image-serve` to serve the current directory.
 
 Extra options:
 
 ```bash
-usage: imgserve [-h] [--host HOST] [--port PORT] [--threads THREADS] [-v]
+usage: image-serve [-h] [--host HOST] [--port PORT] [--threads THREADS] [-v]
               [--index-file INDEX_FILE]
 
 Serve images in the current working directory as a simple gallery.
@@ -49,7 +49,7 @@ python examples/indexed/generate_index.py /path/to/images --output index.json
 Then serve:
 
 ```bash
-imgserve --index-file index.json --port 8000
+image-serve --index-file index.json --port 8000
 ```
 
 ## Options

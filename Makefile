@@ -8,7 +8,7 @@ help:
 	@echo "  make clean        - Remove build artifacts"
 	@echo "  make install      - Install the built wheel (pip install dist/*.whl)"
 	@echo "  make dev-install  - Editable install for development (pip install -e .)"
-	@echo "  make run          - Run server in CWD (imgserve)"
+	@echo "  make run          - Run server in CWD (image-serve)"
 	@echo "  make publish      - Upload to PyPI via twine"
 	@echo "  make check        - Sanity check package metadata"
 	@echo "  make twine-check  - Validate dist/ with twine"
@@ -32,7 +32,7 @@ publish: build twine-check
 	twine upload dist/*
 
 check:
-	python3 -c "import importlib.metadata as m;print(m.version('imgserve'))" || echo "Package not installed yet. Use 'make install' or 'make dev-install'"
+	python3 -c "import importlib.metadata as m;print(m.version('image-serve'))" || echo "Package not installed yet. Use 'make install' or 'make dev-install'"
 
 twine-check:
 	twine check dist/*

@@ -6,6 +6,8 @@ Alternatively, you can use a pre-built JSON index denoting filenames to serve
 images deeply nested in a variety of directories (iMessage attachment backup, 
 for example).
 
+![Example screenshot in action](./examples/screencap.jpg)
+
 ## Installation
 
 ```bash

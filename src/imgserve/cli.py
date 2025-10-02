@@ -3,7 +3,7 @@ import logging
 import os
 
 # Import the Flask app factory
-from app import create_app
+from .app import create_app
 
 
 def configure_logging(verbose: bool = False) -> None:

@@ -1,10 +1,9 @@
 # image-serve
 
-Serve images from your current working directory as a simple web gallery.
+Quickly serve images from your current working directory as a paginated web 
+gallery.
 
-Alternatively, you can use a pre-built JSON index denoting filenames to serve 
-images deeply nested in a variety of directories (iMessage attachment backup, 
-for example).
+`/home/user/nested/dir@host$ image-serve`
 
 ![Example screenshot in action](./examples/screencap.jpg)
 
@@ -40,6 +39,10 @@ options:
 ```
 
 ### Serve from JSON Index
+
+Alternatively, you can use a pre-built JSON index denoting filenames to serve 
+images deeply nested in a variety of directories (an iMessage attachment 
+backup, for example).
 
 First, generate an index:
 

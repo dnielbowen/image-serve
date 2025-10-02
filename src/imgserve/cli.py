@@ -1,10 +1,9 @@
 import argparse
 import logging
 import os
-from waitress import serve
 
-# Import the Flask app (ROOT_DIR is captured from current working directory at import time)
-from .app import app as application
+# Import the Flask app factory
+from app import create_app
 
 
 def configure_logging(verbose: bool = False) -> None:
@@ -50,20 +49,33 @@ def main() -> None:
         action="store_true",
         help="Enable verbose server logs (still hides dev server banners)",
     )
+    parser.add_argument(
+        "--index-file",
+        help="Path to JSON index file to serve from (instead of CWD). Use 'generate_index.py' to create one.",
+    )
 
     args = parser.parse_args()
+
+    # Create the app with the specified mode
+    application = create_app(index_file=args.index_file)
 
     configure_logging(verbose=args.verbose)
 
     print(f"Server running at http://{args.host}:{args.port}")
     # Serve the WSGI application using Waitress (production-ready WSGI server)
-    serve(
-        application,
-        host=args.host,
-        port=args.port,
-        threads=args.threads,
-        ident="imgserve",
-    )
+    try:
+        from waitress import serve
+        serve(
+            application,
+            host=args.host,
+            port=args.port,
+            threads=args.threads,
+            ident="imgserve",
+        )
+    except Exception as e:
+        print(f"Error: Failed to start server with Waitress: {e}")
+        print("Ensure Waitress is installed: pip install waitress")
+        return
 
 
 if __name__ == "__main__":

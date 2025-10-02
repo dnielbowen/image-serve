@@ -1,19 +1,38 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "imgserve"
 version = "0.1.0"
-description = "Serve a simple image gallery from the current directory"
+description = "Serve images from current directory or JSON index as a web gallery"
 readme = "README.md"
-authors = [{ name = "Daniel" }]
-license = "MIT"
-requires-python = ">=3.10"
+requires-python = ">=3.8"
 dependencies = [
-  "Flask>=3.0.0",
-  "waitress>=3.0.0",
+    "flask>=3.0.0",
+    "waitress>=3.0.0",
 ]
+authors = [
+    {name = "Daniel", email = "daniel@example.com"},
+]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/imgserve"
+Repository = "https://github.com/yourusername/imgserve"
+Issues = "https://github.com/yourusername/imgserve/issues"
 
 [project.scripts]
 imgserve = "imgserve.cli:main"

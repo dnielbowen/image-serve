@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "imgserve"
-version = "0.1.0"
+version = "0.1.1"
 description = "Serve images from current directory or JSON index as a web gallery"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -13,7 +13,7 @@ dependencies = [
     "waitress>=3.0.0",
 ]
 authors = [
-    {name = "Daniel", email = "daniel@example.com"},
+    {name = "Daniel Bowen", email = "daniel@chestnut-software.com"},
 ]
 license = {text = "MIT"}
 classifiers = [
@@ -30,9 +30,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/imgserve"
-Repository = "https://github.com/yourusername/imgserve"
-Issues = "https://github.com/yourusername/imgserve/issues"
+Homepage = "https://github.com/dnielbowen/imgserve"
+Repository = "https://github.com/dnielbowen/imgserve"
+Issues = "https://github.com/dnielbowen/imgserve/issues"
 
 [project.scripts]
 imgserve = "imgserve.cli:main"

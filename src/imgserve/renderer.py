@@ -236,7 +236,7 @@ def render_gallery_with_dirs(title: str,
                              empty_message: str = "No image files found.",
                              subdirs: list[tuple[str, str]] | None = None,
                              current_dir_rel: str = "",
-                             sort_by: str = "date"):
+                             sort_by: str = "name"):
     if subdirs is None:
         subdirs = []
 
@@ -439,7 +439,7 @@ def render_gallery_with_dirs(title: str,
     """
 
     dir_param = f"&dir={current_dir_rel}" if current_dir_rel else ""
-    sort_param = f"&sort={sort_by}" if sort_by != "date" else ""
+    sort_param = f"&sort={sort_by}" if sort_by != "name" else ""
     if page > 1:
         html_content += f"<a href='/?page={page - 1}{dir_param}{sort_param}'>&laquo; Previous</a>"
     else:
@@ -459,6 +459,17 @@ def render_gallery_with_dirs(title: str,
 
     html_content += """
         </div>
+    """
+
+    # Subdirectories
+    if subdirs:
+        html_content += '<div class="subdirs"><h3>Subdirectories:</h3>'
+        sort_param = f"&sort={sort_by}" if sort_by != "name" else ""
+        for display_name, rel_path in subdirs:
+            html_content += f'<a href="/?dir={rel_path}{sort_param}">{display_name}</a>'
+        html_content += '</div>'
+
+    html_content += """
     </body>
     </html>
     """

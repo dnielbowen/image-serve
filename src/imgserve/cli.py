@@ -7,19 +7,28 @@ from .app import create_app
 
 
 def configure_logging(verbose: bool = False) -> None:
-    """Configure logging to show only access logs from the WSGI server.
+    """Configure logging.
 
     - Suppress Flask/Werkzeug development server noise.
-    - Keep Waitress access logs at INFO level.
+    - By default, run quietly (no access logs or app logs).
+    - With --verbose, show access logs and directory statistics.
     """
-    root_level = logging.INFO if verbose else logging.WARNING
+    root_level = logging.WARNING  # Always quiet at root level
     logging.basicConfig(level=root_level, format="%(message)s")
 
-    # Silence general server chatter; keep only access logs visible
+    # Silence general server chatter
     logging.getLogger("werkzeug").setLevel(logging.WARNING)
     logging.getLogger("flask").setLevel(logging.WARNING)
     logging.getLogger("waitress").setLevel(logging.WARNING)
-    logging.getLogger("waitress.access").setLevel(logging.INFO)
+
+    if verbose:
+        # Verbose mode: show access logs and app logs
+        logging.getLogger("waitress.access").setLevel(logging.INFO)
+        logging.getLogger("imgserve").setLevel(logging.INFO)
+    else:
+        # Quiet mode (default): disable access logs and app logs
+        logging.getLogger("waitress.access").setLevel(logging.WARNING)
+        logging.getLogger("imgserve").setLevel(logging.WARNING)
 
 
 def main() -> None:
@@ -47,7 +56,7 @@ def main() -> None:
         "-v",
         "--verbose",
         action="store_true",
-        help="Enable verbose server logs (still hides dev server banners)",
+        help="Show directory statistics and image counts in logs",
     )
     parser.add_argument(
         "--index-file",

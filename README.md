@@ -31,8 +31,7 @@ options:
   --host HOST           Host/IP to bind (default: 0.0.0.0)
   --port PORT           Port to bind (default: 8000)
   --threads THREADS     Number of worker threads (default: 8)
-  -v, --verbose         Enable verbose server logs (still hides dev server
-                        banners)
+  -v, --verbose         Show directory statistics and image counts in logs
   --index-file INDEX_FILE
                         Path to JSON index file to serve from (instead of
                         CWD). Use 'generate_index.py' to create one.
@@ -58,7 +57,7 @@ image-serve --index-file index.json --port 8000
 - `--port PORT`: Port to bind (default: 8000)
 - `--threads THREADS`: Number of threads (default: 8)
 - `--index-file FILE`: JSON index file to serve from
-- `-v, --verbose`: Verbose logging
+- `-v, --verbose`: Show directory statistics and image counts in logs
 
 ## License
 

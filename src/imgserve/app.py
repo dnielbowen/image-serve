@@ -1,5 +1,8 @@
 import os
+import logging
 from flask import Flask, send_file, abort, request
+
+logger = logging.getLogger(__name__)
 try:
     from .renderer import (
         render_gallery_with_dirs,
@@ -30,9 +33,9 @@ def create_app(index_file=None):
                 all_indexed_images = json.load(f)
             # Sort by mtime descending (newest first)
             all_indexed_images.sort(key=lambda x: float(x.get('mtime', 0)), reverse=True)
-            print(f"Loaded {len(all_indexed_images)} images from index '{index_file}'.")
+            logger.info(f"Loaded {len(all_indexed_images)} images from index '{index_file}'.")
         except (FileNotFoundError, json.JSONDecodeError) as e:
-            print(f"Error loading index file '{index_file}': {e}")
+            logger.error(f"Error loading index file '{index_file}': {e}")
             all_indexed_images = []
 
         # Store in app config for routes to access
@@ -50,6 +53,7 @@ def create_app(index_file=None):
         if app.config['INDEX_MODE']:
             # Index mode: serve from pre-loaded index
             total_images = len(app.config['ALL_INDEXED_IMAGES'])
+            logger.info(f"Index mode: {total_images} images from index file")
             page = request.args.get('page', 1, type=int)
 
             pagination = compute_pagination_window(page=page, total_items=total_images)
@@ -80,7 +84,7 @@ def create_app(index_file=None):
             # CWD mode: original logic
             dir_arg = request.args.get('dir', '')
             page = request.args.get('page', 1, type=int)
-            sort_by = request.args.get('sort', 'date')
+            sort_by = request.args.get('sort', 'name')
 
             current_dir = os.path.normpath(os.path.join(app.config['ROOT_DIR'], dir_arg))
             if not current_dir.startswith(app.config['ROOT_DIR']):
@@ -91,6 +95,25 @@ def create_app(index_file=None):
 
             image_entries = list_images_in_directory(current_dir, sort_by)
             total_images = len(image_entries)
+
+            # Log directory statistics
+            rel_display = os.path.relpath(current_dir, app.config['ROOT_DIR'])
+            display_path = app.config['ROOT_DIR'] if rel_display == '.' else rel_display
+            logger.info(f"Directory: {display_path} ({total_images} images)")
+
+            # Log subdirectory statistics
+            subdir_stats = []
+            try:
+                for item in os.listdir(current_dir):
+                    full_path = os.path.join(current_dir, item)
+                    if os.path.isdir(full_path) and not item.startswith('.'):
+                        subdir_images = len(list_images_in_directory(full_path, 'date'))
+                        subdir_stats.append(f"{item}({subdir_images})")
+            except OSError:
+                pass
+
+            if subdir_stats:
+                logger.info(f"Subdirectories: {', '.join(subdir_stats)}")
 
             pagination = compute_pagination_window(page=page, total_items=total_images)
 
@@ -164,7 +187,11 @@ def create_app(index_file=None):
     return app
 
 
-def list_images_in_directory(directory_path: str, sort_by: str = 'date'):
+def list_images_in_directory(directory_path: str, sort_by: str = 'name'):
+    """Return a sorted list of (filename, mtime) for image files in the directory.
+
+    By default, sorted alphabetically by filename.
+    """
     if not os.path.isdir(directory_path):
         return []
 
@@ -201,7 +228,9 @@ if __name__ == "__main__":
         from waitress import serve
         logging.basicConfig(level=logging.WARNING, format="%(message)s")
         logging.getLogger("waitress").setLevel(logging.WARNING)
-        logging.getLogger("waitress.access").setLevel(logging.INFO)
+        logging.getLogger("waitress.access").setLevel(logging.WARNING)
+        # Disable app logs by default (quiet mode)
+        logging.getLogger("imgserve").setLevel(logging.WARNING)
         print("Server running at http://0.0.0.0:8000")
         serve(app, host="0.0.0.0", port=8000, threads=8, ident="imgserve")
     except ImportError:

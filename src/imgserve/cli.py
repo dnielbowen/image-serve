@@ -55,6 +55,7 @@ def main() -> None:
 
     configure_logging(verbose=args.verbose)
 
+    print(f"Server running at http://{args.host}:{args.port}")
     # Serve the WSGI application using Waitress (production-ready WSGI server)
     serve(
         application,

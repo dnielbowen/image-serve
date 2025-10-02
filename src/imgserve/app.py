@@ -1,10 +1,18 @@
 import os
 from flask import Flask, send_file, abort, request
-from .renderer import (
-    render_gallery_with_dirs,
-    compute_pagination_window,
-    format_date_from_timestamp,
-)
+try:
+    from .renderer import (
+        render_gallery_with_dirs,
+        compute_pagination_window,
+        format_date_from_timestamp,
+    )
+except ImportError:
+    # Allow running this file directly: `python path/to/imgserve/app.py`
+    from renderer import (
+        render_gallery_with_dirs,
+        compute_pagination_window,
+        format_date_from_timestamp,
+    )
 
 app = Flask(__name__)
 
@@ -112,3 +120,55 @@ def serve_image(img_path: str):
         abort(404, description="File not found.")
 
     return send_file(full_path)
+
+
+if __name__ == "__main__":
+    # Lightweight CLI so this file works when run directly
+    import argparse
+    import logging
+    try:
+        from waitress import serve as waitress_serve
+    except ImportError:
+        waitress_serve = None
+
+    parser = argparse.ArgumentParser(
+        description="Serve images in the current working directory as a simple gallery.",
+    )
+    parser.add_argument(
+        "--host",
+        default=os.environ.get("IMGSERVE_HOST", "0.0.0.0"),
+        help="Host/IP to bind (default: 0.0.0.0)",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(os.environ.get("IMGSERVE_PORT", 8000)),
+        help="Port to bind (default: 8000)",
+    )
+    parser.add_argument(
+        "--threads",
+        type=int,
+        default=int(os.environ.get("IMGSERVE_THREADS", 8)),
+        help="Number of worker threads (default: 8)",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Enable verbose server logs",
+    )
+
+    args = parser.parse_args()
+
+    logging.basicConfig(
+        level=logging.INFO if args.verbose else logging.WARNING,
+        format="%(message)s",
+    )
+    print(f"Server running at http://{args.host}:{args.port}")
+    if waitress_serve is not None:
+        logging.getLogger("waitress").setLevel(logging.WARNING)
+        logging.getLogger("waitress.access").setLevel(logging.INFO)
+        waitress_serve(app, host=args.host, port=args.port, threads=args.threads, ident="imgserve")
+    else:
+        print("waitress not installed; falling back to Flask's built-in server (for development).")
+        app.run(host=args.host, port=args.port)
